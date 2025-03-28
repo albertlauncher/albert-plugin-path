@@ -5,5 +5,5 @@
     "license": "MIT",
     "name": "PATH",
     "plugin_dependencies": ["applications"],
-    "url": "https://github.com/albertlauncher/plugins/tree/main/PATH"
+    "url": "https://github.com/albertlauncher/albert-plugin-PATH"
 }
