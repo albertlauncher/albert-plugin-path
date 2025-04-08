@@ -23,14 +23,12 @@ public:
     QWidget *buildConfigWidget() override;
     QString synopsis(const QString &) const override;
     QString defaultTrigger() const override;
-    void setTrigger(const QString &trigger) override;
     void handleTriggerQuery(albert::Query&) override;
 
 private:
 
     std::vector<albert::Action> buildActions(const QString &commandline) const;
 
-    QString trigger_;
     QFileSystemWatcher watcher_;
     std::set<QString> index_;
     albert::BackgroundExecutor<std::set<QString>> indexer_;

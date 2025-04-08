@@ -62,8 +62,6 @@ QString Plugin::synopsis(const QString &) const { return tr("<command> [params]"
 
 QString Plugin::defaultTrigger() const { return ">"; }
 
-void Plugin::setTrigger(const QString &trigger) { trigger_ = trigger; }
-
 vector<Action> Plugin::buildActions(const QString &commandline) const
 {
     vector<Action> a;
@@ -105,7 +103,7 @@ void Plugin::handleTriggerQuery(Query &query)
                                             commonPrefix.begin() + potentialProgram.size() - 1);
             commonPrefix.resize(distance(it->begin(), mismatchindexes.first));
 
-            auto commandline = QString("%1 %2").arg(*it, remainder);
+            auto commandline = remainder.isEmpty() ? *it : QString("%1 %2").arg(*it, remainder);
 
             results.emplace_back(
                 StandardItem::make(
@@ -121,7 +119,7 @@ void Plugin::handleTriggerQuery(Query &query)
         }
 
         // Apply completion string to items
-        QString completion = QString("%1%2 %3").arg(trigger_, commonPrefix, remainder);
+        QString completion = QString("%1 %2").arg(commonPrefix, remainder);
         for (auto &item: results)
             static_pointer_cast<StandardItem>(item)->setInputActionText(completion);
     }
