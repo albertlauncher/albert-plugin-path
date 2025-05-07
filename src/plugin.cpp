@@ -12,6 +12,7 @@
 ALBERT_LOGGING_CATEGORY("terminal")
 using namespace albert;
 using namespace std;
+using namespace util;
 
 Plugin::Plugin()
 {

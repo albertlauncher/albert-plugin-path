@@ -31,7 +31,7 @@ private:
 
     QFileSystemWatcher watcher_;
     std::set<QString> index_;
-    albert::BackgroundExecutor<std::set<QString>> indexer_;
+    albert::util::BackgroundExecutor<std::set<QString>> indexer_;
     albert::StrongDependency<applications::Plugin> apps_{"applications"};
 
 };
