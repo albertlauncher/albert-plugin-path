@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2024 Manuel Schneider
+// Copyright (c) 2017-2025 Manuel Schneider
 
 #include "plugin.h"
 #include <QDirIterator>
@@ -10,16 +10,19 @@
 #include <albert/standarditem.h>
 #include <functional>
 ALBERT_LOGGING_CATEGORY("terminal")
+using namespace Qt::StringLiterals;
+using namespace albert::util;
 using namespace albert;
 using namespace std;
-using namespace util;
+
+static auto getPaths() { return qEnvironmentVariable("PATH").split(u':', Qt::SkipEmptyParts); }
 
 Plugin::Plugin()
 {
     indexer_.parallel = [](const bool &abort){
         set<QString> result;
-        QStringList paths = QString(::getenv("PATH")).split(':', Qt::SkipEmptyParts);
-        DEBG << "Indexing" << paths.join(", ");
+        const auto paths = getPaths();
+        DEBG << "Indexing" << paths.join(u", "_s);
         for (const QString &path : paths) {
             QDirIterator dirIt(path, QDir::NoDotAndDotDot|QDir::Files|QDir::Executable, QDirIterator::Subdirectories);
             while (dirIt.hasNext()) {
@@ -32,12 +35,11 @@ Plugin::Plugin()
     };
 
     indexer_.finish = [this](set<QString> && res){
-        INFO << QStringLiteral("Indexed %1 executables [%2 ms]")
-                    .arg(res.size()).arg(indexer_.runtime.count());
+        INFO << u"Indexed %1 executables [%2 ms]"_s.arg(res.size()).arg(indexer_.runtime.count());
         index_ = ::move(res);
     };
 
-    watcher_.addPaths(QString(::getenv("PATH")).split(':', Qt::SkipEmptyParts));
+    watcher_.addPaths(getPaths());
     connect(&watcher_, &QFileSystemWatcher::directoryChanged, this, [this](){ indexer_.run(); });
 
     indexer_.run();
@@ -47,10 +49,10 @@ Plugin::~Plugin() = default;
 
 QWidget *Plugin::buildConfigWidget()
 {
-    QString t = QString(R"(<ul style="margin-left:-1em">)");
-    for (const auto & path : QString(::getenv("PATH")).split(':', Qt::SkipEmptyParts))
-        t += QString(R"(<li><a href="file://%1")>%1</a></li>)").arg(path);
-    t +=  "</ul>";
+    auto t = uR"(<ul style="margin-left:-1em">)"_s;
+    for (const auto & path : getPaths())
+        t += uR"(<li><a href="file://%1")>%1</a></li>)"_s.arg(path);
+    t += u"</ul>"_s;
 
     auto l = new QLabel(t);
     l->setOpenExternalLinks(true);
@@ -61,20 +63,20 @@ QWidget *Plugin::buildConfigWidget()
 
 QString Plugin::synopsis(const QString &) const { return tr("<command> [params]"); }
 
-QString Plugin::defaultTrigger() const { return ">"; }
+QString Plugin::defaultTrigger() const { return u">"_s; }
 
 vector<Action> Plugin::buildActions(const QString &commandline) const
 {
     vector<Action> a;
 
-    a.emplace_back("r", tr("Run in terminal"),
-                   [=, this]{ apps_->runTerminal(QString("%1 ; exec $SHELL").arg(commandline)); });
+    a.emplace_back(u"r"_s, tr("Run in terminal"),
+                   [=, this]{ apps_->runTerminal(u"%1 ; exec $SHELL"_s.arg(commandline)); });
 
-    a.emplace_back("rc", tr("Run in terminal and close on exit"),
+    a.emplace_back(u"rc"_s, tr("Run in terminal and close on exit"),
                    [=, this]{ apps_->runTerminal(commandline); });
 
-    a.emplace_back("rb", tr("Run in background (without terminal)"),
-                   [=]{ runDetachedProcess({"sh", "-c", commandline}); });
+    a.emplace_back(u"rb"_s, tr("Run in background (without terminal)"),
+                   [=]{ runDetachedProcess({u"sh"_s, u"-c"_s, commandline}); });
 
     return a;
 }
@@ -87,11 +89,11 @@ void Plugin::handleTriggerQuery(Query &query)
     vector<shared_ptr<Item>> results;
 
     // Extract data from input string: [0] program. The rest: args
-    QString potentialProgram = query.string().section(' ', 0, 0, QString::SectionSkipEmpty);
-    QString remainder = query.string().section(' ', 1, -1, QString::SectionSkipEmpty);
+    QString potentialProgram = query.string().section(u' ', 0, 0, QString::SectionSkipEmpty);
+    QString remainder = query.string().section(u' ', 1, -1, QString::SectionSkipEmpty);
 
     static const auto tr_rcmd = tr("Run '%1'");
-    static const QStringList icon_urls{"xdg:utilities-terminal", "xdg:terminal", ":path"};
+    static const QStringList icon_urls{u"xdg:utilities-terminal"_s, u"xdg:terminal"_s, u":path"_s};
 
     QString commonPrefix;
     if (auto it = lower_bound(index_.begin(), index_.end(), potentialProgram); it != index_.end()){
@@ -104,7 +106,7 @@ void Plugin::handleTriggerQuery(Query &query)
                                             commonPrefix.begin() + potentialProgram.size() - 1);
             commonPrefix.resize(distance(it->begin(), mismatchindexes.first));
 
-            auto commandline = remainder.isEmpty() ? *it : QString("%1 %2").arg(*it, remainder);
+            auto commandline = remainder.isEmpty() ? *it : u"%1 %2"_s.arg(*it, remainder);
 
             results.emplace_back(
                 StandardItem::make(
@@ -120,7 +122,7 @@ void Plugin::handleTriggerQuery(Query &query)
         }
 
         // Apply completion string to items
-        QString completion = QString("%1 %2").arg(commonPrefix, remainder);
+        QString completion = u"%1 %2"_s.arg(commonPrefix, remainder);
         for (auto &item: results)
             static_pointer_cast<StandardItem>(item)->setInputActionText(completion);
     }
