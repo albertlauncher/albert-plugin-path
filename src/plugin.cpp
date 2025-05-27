@@ -5,9 +5,9 @@
 #include <QFileSystemWatcher>
 #include <QLabel>
 #include <QStringList>
-#include <albert/albert.h>
 #include <albert/extensionregistry.h>
 #include <albert/standarditem.h>
+#include <albert/systemutil.h>
 #include <functional>
 ALBERT_LOGGING_CATEGORY("terminal")
 using namespace Qt::StringLiterals;
