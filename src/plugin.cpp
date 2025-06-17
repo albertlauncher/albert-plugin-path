@@ -113,9 +113,9 @@ void Plugin::handleTriggerQuery(Query &query)
                     {},
                     commandline,
                     tr_rcmd.arg(commandline),
-                    commonPrefix,
                     icon_urls,
-                    buildActions(commandline)
+                    buildActions(commandline),
+                    commonPrefix
                 )
             );
             ++it;
