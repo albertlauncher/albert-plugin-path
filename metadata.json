@@ -3,6 +3,7 @@
     "credits": "Flatwoken Icon (CC BY-SA 4.0 DEED) by Alessandro Roncone",
     "description": "Run executables in $PATH",
     "license": "MIT",
+    "maintainers": ["@manuelschneid3r"],
     "name": "PATH",
     "plugin_dependencies": ["applications"],
     "url": "https://github.com/albertlauncher/albert-plugin-PATH"
