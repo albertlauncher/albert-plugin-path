@@ -1,1 +1,1 @@
-# albert-plugin-path
+# Albert plugin: PATH
