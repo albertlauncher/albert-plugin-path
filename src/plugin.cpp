@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QStringList>
 #include <albert/extensionregistry.h>
+#include <albert/iconutil.h>
 #include <albert/standarditem.h>
 #include <albert/systemutil.h>
 #include <functional>
@@ -15,7 +16,10 @@ using namespace albert::util;
 using namespace albert;
 using namespace std;
 
+namespace{
 static auto getPaths() { return qEnvironmentVariable("PATH").split(u':', Qt::SkipEmptyParts); }
+static unique_ptr<Icon> makeIcon() { return makeImageIcon(u":path"_s); }
+}
 
 Plugin::Plugin()
 {
@@ -93,7 +97,6 @@ void Plugin::handleTriggerQuery(Query &query)
     QString remainder = query.string().section(u' ', 1, -1, QString::SectionSkipEmpty);
 
     static const auto tr_rcmd = tr("Run '%1'");
-    static const QStringList icon_urls{u"xdg:utilities-terminal"_s, u"xdg:terminal"_s, u":path"_s};
 
     QString commonPrefix;
     if (auto it = lower_bound(index_.begin(), index_.end(), potentialProgram); it != index_.end()){
@@ -113,7 +116,7 @@ void Plugin::handleTriggerQuery(Query &query)
                     {},
                     commandline,
                     tr_rcmd.arg(commandline),
-                    icon_urls,
+                    makeIcon,
                     buildActions(commandline),
                     commonPrefix
                 )
@@ -136,7 +139,7 @@ void Plugin::handleTriggerQuery(Query &query)
             {},
             tr_title,
             tr_description.arg(query.string()),
-            icon_urls,
+            makeIcon,
             buildActions(query.string())
         )
     );
