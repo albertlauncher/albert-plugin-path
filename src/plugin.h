@@ -10,7 +10,7 @@
 #include <set>
 namespace albert { class Action; }
 
-class Plugin : public albert::util::ExtensionPlugin,
+class Plugin : public albert::ExtensionPlugin,
                public albert::TriggerQueryHandler
 {
     ALBERT_PLUGIN
@@ -31,7 +31,7 @@ private:
 
     QFileSystemWatcher watcher_;
     std::set<QString> index_;
-    albert::util::BackgroundExecutor<std::set<QString>> indexer_;
-    albert::util::StrongDependency<applications::Plugin> apps_{QStringLiteral("applications")};
+    albert::BackgroundExecutor<std::set<QString>> indexer_;
+    albert::StrongDependency<applications::Plugin> apps_{QStringLiteral("applications")};
 
 };
